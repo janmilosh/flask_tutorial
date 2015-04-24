@@ -34,10 +34,9 @@ def index():
     
     return render_template('index.html', current_time=datetime.utcnow(), form=form, name=session.get('name'))
 
-
-# @app.route('/user/<name>')
-# def user(name):
-#     return render_template('user.html', name=name)
+@app.route('/user/<name>')
+def user(name):
+    return render_template('user.html', name=name)
 
 @app.route('/badbadbad')
 def bad():
