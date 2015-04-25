@@ -1,5 +1,5 @@
 To start server:
 
 ```
-python hello.py runserver --debug
+python manage.py runserver --debug
 ```
