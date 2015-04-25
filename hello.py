@@ -1,15 +1,16 @@
 from datetime import datetime
 import os
 
-from flask import Flask, request, make_response, redirect, abort 
-from flask import render_template, session, redirect, url_for, flash
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask import Flask, abort, flash, make_response, request
+from flask import redirect, render_template, session, url_for 
 
-from flask.ext.script import Manager
 from flask.ext.bootstrap import Bootstrap
+from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.moment import Moment
-
+from flask.ext.script import Shell, Manager
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.wtf import Form
+
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
 
@@ -20,10 +21,12 @@ app.config['SECRET_KEY'] = 'This is the example key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
+bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
 manager = Manager(app)
-bootstrap = Bootstrap(app)
+migrate = Migrate(app, db)
 moment = Moment(app)
+
 
 class NameForm(Form):
     name = StringField('What is your name?', validators=[Required()])
@@ -46,6 +49,11 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+def make_shell_context():
+    return dict(app=app, db=db, User=User, Role=Role)
+manager.add_command('shell', Shell(make_context=make_shell_context))
+manager.add_command('db', MigrateCommand)
 
 @app.route('/user_agent')
 def user_agent():
